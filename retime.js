@@ -158,7 +158,7 @@ else if(domain.includes("divokekmeny.cz")){
     baseUnitSpeed = {
         "Šlechtic" : 35,
         "Beranidlo" : 30,
-        "Meč" : 22,
+        "Speh" : 22,
         "Sekera" : 18,
         "TK" : 11,
         "LK" : 10,
@@ -348,7 +348,7 @@ function findAttackLaunch(row){
 }
 
 function getFinalString(row){
-    return findAttackSpeed(row) + " " + getAttacker(row) + " " + getSender(row) + " " + findAttackLaunch(row) + " | " + getBackTime(row)
+    return findAttackSpeed(row) + " | " + getBackTime(row)
 }
 
 
