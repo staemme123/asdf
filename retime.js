@@ -156,8 +156,8 @@ else if(domain.includes("divokekmeny.cz")){
     attackTranslated = "Útok";
 
     baseUnitSpeed = {
-        "Šlechta" : 35,
-        "Beranidlo" : 30,
+        "AG" : 35,
+        "RAMME" : 30,
         "Meč" : 22,
         "Sekera" : 18,
         "TK" : 11,
