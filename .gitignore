@@ -1,24 +1,159 @@
-# Compiled class file
-*.class
+//author fmthemaster
+//discord: fmthemaster#7485
 
-# Log file
-*.log
+/******PROGRAM VARS**********/
+var scriptName = "Coord extractor";
+var scriptTag = "fmCoord";
+var forumLink = "https://forum.tribalwars.net/index.php?threads/coordinates-extractor.286949/";
+var countapikey = "coordExtractor";
+/******PROGRAM VARS**********/
 
-# BlueJ files
-*.ctxt
+function main(){
+    hitCountApi();
+    if($(`#${scriptTag}_popup_container`).length){
+        UI.ErrorMessage("Script has already been loaded, reload the page before calling it again");
+        return;
+    }
+    // extendjQuery();
+    setHTML();
+}
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+function hitCountApi(){
+    $.getJSON(`https://api.countapi.xyz/hit/fmthemasterScripts/${countapikey}`, function(response) {
+        console.log(`This script has been run ${response.value} times`);
+    });
+}
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+function setHTML(){
+    let html =`
+    <div id="${scriptTag}_popup_container" class="fm_popup_container">
+        <div class="fm_popup_content" id="${scriptTag}_popup_contentContainer">
+            <a class="popup_box_close tooltip-delayed" id="${scriptTag}_popup_cross" href="javascript:void(0)"> 
+            </a>
+            <div id="${scriptTag}_popup_content">
+                <h3 class ="fm_centered">${scriptName}</h3>
+                <textarea id="${scriptTag}_coordsText" placeholder="Paste text with coordinates here..." rows="4"></textarea>
+                <p>
+                    <input class="btn" id="${scriptTag}_extractFromPage" type="submit" value="Extract from page">
+                    <input class="btn" id="${scriptTag}_extractFromText" type="submit" value="Extract from text">
+                </p>
+                <p>
+                    <input class="btn" id="${scriptTag}_divideIntoGroups" type="submit" value="Divide coordinates into x groups">
+                    <input id="${scriptTag}_groupsNumber" placeholder="x" style="width:25px">
+                </p>
+                <p>
+                    Separator: <input id="${scriptTag}_separator" value=" " style="width:25px">
+                </p>
+            </div>
+        </div>
+    </div>
+    <style>
+        #${scriptTag}_popup_content textarea {
+            width:95%;
+        }
+        #${scriptTag}_popup_content p {
+            text-align: center;
+        }
+        #${scriptTag}_popup_content {
+            overflow-y:auto; 
+            max-height:60vh;
+        }
+        .fm_popup_container {
+            border: 19px solid #804000;
+            -moz-border-image: url("/graphic/popup/border.png") 9 19 19 19 repeat;
+            -webkit-border-image: url("/graphic/popup/border.png") 9 19 19 19 repeat;
+            -o-border-image: url("/graphic/popup/border.png") 19 19 19 19 repeat;
+            border-image: url("/graphic/popup/border.png") 19 19 19 19 repeat;
+            display: block;
+            position: fixed;
+            top: 8%;
+            left: 70%;
+            z-index: 14000;
+        }
+        .fm_popup_content {
+            min-width: 300px;
+            min-height: 120px;            
+            height:100%;
+            background-image: url('/graphic/popup/content_background.png');
+        }
+        .fm_centered {
+            text-align: center;
+        }
+        @media only screen and (max-width: 1000px) {
+            .fm_popup_container {
+                top: 8%;
+                left: 5%;
+            }
+        }
+        @media only screen and (max-width: 300px) {
+            .fm_popup_content {
+                width: 90vw;
+                left: 5%;
+            }
+        }
+    </style>`;
+    $("body").append(html);
+    $(`#${scriptTag}_popup_container`).draggable();
+    $(`#${scriptTag}_popup_cross`).click(closePopup);
+    $(`#${scriptTag}_popup_container`).find("textarea").click(focusSelect);
+    $(`#${scriptTag}_separator`).click(focusSelect);
+    $(`#${scriptTag}_extractFromPage`).click(pageExtract);
+    $(`#${scriptTag}_extractFromText`).click(textExtract);
+    $(`#${scriptTag}_divideIntoGroups`).click(divideCoordsIntoGroups);
+    addAuthor(`#${scriptTag}_popup_contentContainer`);
+}
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+function focusSelect(){
+    this.focus();
+    this.select();
+}
+
+function pageExtract(){
+    let sep= $(`#${scriptTag}_separator`).val();
+    let pageText = $("body").text();
+    let coords = pageText.match(/\d+\|\d+/g);
+    coords.shift();
+    $(`#${scriptTag}_coordsText`).val(coords.join(sep));
+}
+
+function textExtract(){
+    let text = $(`#${scriptTag}_coordsText`).val();
+    let sep= $(`#${scriptTag}_separator`).val();
+    $(`#${scriptTag}_coordsText`).val((text.match(/\d+\|\d+/g)||[]).join(sep));
+}
+
+function divideCoordsIntoGroups(){
+    $(`.${scriptTag}_groupStuff`).remove();
+    let nGroups = parseInt($(`#${scriptTag}_groupsNumber`).val());
+    if(isNaN(nGroups))
+        UI.ErrorMessage(`${$(`#${scriptTag}_groupsNumber`).val()} is not a valid ammount of groups`);
+
+    let sep= $(`#${scriptTag}_separator`).val();
+    let splitCoords = $(`#${scriptTag}_coordsText`).val().split(sep);
+    nGroups = Math.max(Math.min(splitCoords.length,nGroups), 1);
+    let sliceInd = Math.ceil(splitCoords.length/nGroups);
+    for(var i=1; i<= nGroups; i++){
+        let html =`<p class="${scriptTag}_groupStuff"><b>Group ${i}</b></p>
+        <textarea rows="4" class="${scriptTag}_groupStuff">${splitCoords.slice((i-1)*sliceInd,i*sliceInd).join(sep)}</textarea>`;
+        $(`#${scriptTag}_popup_content`).append(html);
+    }
+    $(`#${scriptTag}_popup_container`).find("textarea").off("click");
+    $(`#${scriptTag}_popup_container`).find("textarea").click(focusSelect);
+}
+
+function addAuthor(cointainerSelector){
+    let authorHTML = `
+    <div style="border: 1px solid #804000; padding: 5px;">
+        <b>Script:</b> <a href="${forumLink}" target="_blank">${scriptName}</a>
+        <br>
+        <b>Author:</b> <a href="https://forum.tribalwars.net/index.php?members/the-quacks.124200/" target="_blank">fmthemaster aka The Quacks</a>
+    </div>`;
+    $(cointainerSelector).append(authorHTML);
+
+}
+
+function closePopup(){
+    $(`#${scriptTag}_popup_container`).remove();
+}
+
+main();
