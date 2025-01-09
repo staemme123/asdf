@@ -348,7 +348,7 @@ function findAttackLaunch(row){
 }
 
 function getFinalString(row){
-    return findAttackSpeed(row) + " | " + getBackTime(row)
+    return findAttackSpeed(row) + "  " + getBackTime(row)
 }
 
 
