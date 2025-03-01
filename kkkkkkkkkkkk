@@ -1,23 +1,18 @@
 var href = window.location.href;
-var countApiKey = "rename_villages";
-var countNameSpace = "madalinoTribalWarsScripts";
 
-var backgroundColor = "#32313f";
-var borderColor = "#3e6147";
-var headerColor = "#202825";
-var titleColor = "#ffffdf";
+// Define a regular expression to match the pattern "#<number>_archer"
+var archerPattern = /#\d+_archer/;
 
-// Check if the URL contains the specific fragment "#9523_archer" or similar pattern
-if (!href.includes("#archer")) {
-    alert("script must be run from #archer");
-    // Optionally, redirect to a URL containing "#archer"
-    window.location.href = game_data.link_base_pure + "overview_villages&mode=combined#archer";
-} else {
-    // Find the element with an ID matching the pattern "#<number>_archer"
+// Check if the URL contains the dynamic pattern "#<number>_archer"
+if (archerPattern.test(href)) {
+    // Find the element with an id that matches the pattern "#<number>_archer"
     var archerElement = document.querySelector('[id*="_archer"]');
+    
     if (archerElement) {
-        archerElement.click();  // Click the element if found
+        archerElement.click(); // Click the element if found
     } else {
         console.log("No element matching the pattern was found.");
     }
+} else {
+    console.log("The URL does not contain a valid #<number>_archer pattern.");
 }
